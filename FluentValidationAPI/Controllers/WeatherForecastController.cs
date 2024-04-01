@@ -12,6 +12,7 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly UserValidator _userValidator;
 
     public WeatherForecastController(ILogger<WeatherForecastController> logger)
     {
@@ -28,5 +29,36 @@ public class WeatherForecastController : ControllerBase
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
         })
         .ToArray();
+    }
+
+    // Automatic validation
+    [HttpPost]
+    public IActionResult Create(User model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+        }
+
+        // Continue with user creation process
+
+        return StatusCode(StatusCodes.Status201Created, "User created successfully!");
+    }
+
+
+    // Manual validation
+    [HttpPut]
+    public IActionResult Update(User user)
+    {
+        var validationResult = _userValidator.Validate(user);
+
+        if (!validationResult.IsValid)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, validationResult.Errors);
+        }
+
+        // Continue with user update process
+
+        return StatusCode(StatusCodes.Status200OK, "User updated successfully!");
     }
 }
